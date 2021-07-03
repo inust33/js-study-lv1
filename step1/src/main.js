@@ -64,7 +64,62 @@ function template() {
  */
 
 
+  /** 이벤트 등록 **/
+    //아이템 추가 영역
+     //아이템 수정 버튼 관리
+const itemAdd = function (event) {
 
+      event.preventDefault();
+      const content = $appenderForm.querySelector('input').value.trim();
+      if (content.length === 0) {
+      return alert("아이템 내용을 입력해주세요");
+      }
+      state.todoItems.push({
+        createdAt: Date.now(),
+        content: content,
+        isComplete: false
+      });
+  render();
+}
+
+// 아이템 수정 관리
+const editItem = function (event) {
+  state.selectedItem = Number(event.target.dataset.key);
+  render();
+}
+//아이템 수정
+const updateItem = function (event) {
+  event.preventDefault();
+  const content = $modifierForm.querySelector('input').value.trim();
+  if (content.length === 0) {
+  return alert("아이템 내용을 입력해주세요");
+  }
+  state.todoItems[state.selectedItem].content = content;
+  state.selectedItem = -1;
+  render();
+}
+  //아이템 수정 취소, esc키 //
+const resetItem = function(event){
+  event.preventDefault();
+  state.selectedItem = -1;
+  render();
+}
+//아이템 삭제 관리//
+const deleteItem = function (event) {
+  const key = Number(event.target.dataset.key);
+  state.todoItems.splice(key, 1);
+  render();
+}    
+
+const toggleItem = function (event) {
+  const key = Number(event.target.dataset.key);
+  const item = state.todoItems[key];
+  item.isComplete = !item.isComplete;
+  render();
+}
+$complete.forEach(($el)=>
+  $el.addEventListener("click", toggleItem));
+}
 
 function render() {
   const $app = document.querySelector("#app")
@@ -76,79 +131,29 @@ function render() {
   const $deleters = $app.querySelectorAll(".deleter");
   const $complete = $app.querySelectorAll(".complete");
 
-  /** 이벤트 등록 **/
-    //아이템 추가 영역
-  const itemAdd = function (event) {
 
-    event.preventDefault();
-    const content = $appenderForm.querySelector('input').value.trim();
-    if (content.length === 0) {
-    return alert("아이템 내용을 입력해주세요");
-    }
-    state.todoItems.push({
-      createdAt: Date.now(),
-      content: content,
-      isComplete: false
-    });
-    render();
-  }
+ 
   $appenderForm.addEventListener('submit', itemAdd);
-  //아이템 수정 버튼 관리
 
-  const editItem = function (event) {
-    state.selectedItem = Number(event.target.dataset.key);
-    render();
-  }
-    // 아이템 수정 관리
   $modifiers.forEach(($modifier)=>
-    $modifier.addEventListener("click",editItem));
+  $modifier.addEventListener("click",editItem));  
   
 
-  //아이템 수정
-  const updateItem = function (event) {
-    event.preventDefault();
-    const content = $modifierForm.querySelector('input').value.trim();
-    if (content.length === 0) {
-    return alert("아이템 내용을 입력해주세요");
-    }
-    state.todoItems[state.selectedItem].content = content;
-    state.selectedItem = -1;
-    render();
-  }
   if ($modifierForm) {
     $modifierForm.addEventListener('submit', updateItem);
   }
-  //아이템 수정 취소, esc키 //
-  const resetItem = function(event){
-    event.preventDefault();
-    state.selectedItem = -1;
-    render();
-  }
+
+
   if ($modifierForm) {
     $modifierForm.addEventListener('reset', resetItem);
     $modifierForm.addEventListener('keydown', (event) => {if(event.code ==='Escape') {state.selectedItem=-1; render();}});
   }
-    //아이템 삭제 관리//
-  const deleteItem = function (event) {
-    const key = Number(event.target.dataset.key);
-    state.todoItems.splice(key, 1);
-    render();
-  }
+
+
   $deleters.forEach(($deleter)=>
     $deleter.addEventListener("click", deleteItem));
   
 
-  const toggleItem = function (event) {
-    const key = Number(event.target.dataset.key);
-    const item = state.todoItems[key];
-    item.isComplete = !item.isComplete;
-    render();
-  }
-  $complete.forEach(($el)=>
-    $el.addEventListener("click", toggleItem));
-  
-
-}
 // 앱 실행
 function main(){
   render();
